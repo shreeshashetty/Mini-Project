@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "564788682318",
+    "project_id": "campuscare-1ebb9",
+    "storage_bucket": "campuscare-1ebb9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:564788682318:android:7c8b779bad7c5336f72d1f",
+        "android_client_info": {
+          "package_name": "com.example.campus_care"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZPmNhYo_NW5hgHpAWN0N-NtQT2zjoais"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
