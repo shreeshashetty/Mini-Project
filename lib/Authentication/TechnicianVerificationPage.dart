@@ -51,7 +51,7 @@ class TechnicianVerificationPage extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const TechnicianHomePage(),
+                      builder: (context) => TechnicianHomePage(),
                     ),
                   );
                 } catch (e) {

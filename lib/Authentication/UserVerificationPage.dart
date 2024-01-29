@@ -52,7 +52,7 @@ class UserVerificationPage extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UserHomePage(),
+                      builder: (context) => UserHomePage(),
                     ),
                   );
                 } catch (e) {

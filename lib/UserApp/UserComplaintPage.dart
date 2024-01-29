@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:campus_care/Firestore/FirestoreService.dart'; // Import the FirestoreService class
-import 'package:campus_care/TechnicianApp/TechnicianCompletedPage.dart'; // Import the TechnicianCompletedPage
 
-class TechnicianHomePage extends StatefulWidget {
+class UserComplaintPage extends StatefulWidget {
   @override
-  _TechnicianHomePageState createState() => _TechnicianHomePageState();
+  _UserComplaintPageState createState() => _UserComplaintPageState();
 }
 
-class _TechnicianHomePageState extends State<TechnicianHomePage> {
+class _UserComplaintPageState extends State<UserComplaintPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''),
+        title: Text('My Complaints'),
         backgroundColor: Colors.lightGreen,
         actions: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(0),
             child: Image.asset(
-              'assets/images/logogreen.jpg',
-              width: 40,
-              height: 40,
+              'assets/images/logogreen.jpg', // Replace with your image path
+              width: 80, // Set the desired width
+              height: 80, // Set the desired height
             ),
           ),
         ],
@@ -31,19 +29,13 @@ class _TechnicianHomePageState extends State<TechnicianHomePage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.build),
-            label: 'My Complaints',
-          ),
+              icon: Icon(Icons.build), label: 'My Complaints'),
         ],
         backgroundColor: Colors.lightGreen,
         onTap: (index) {
-          if (index == 1) {
-            // Navigate to TechnicianCompletedPage when "My Complaints" icon is pressed
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => TechnicianCompletedPage()),
-            );
+          if (index == 0) {
+            // Navigate to UserHomePage when "Home" icon is pressed
+            Navigator.pop(context);
           }
         },
       ),
@@ -54,16 +46,16 @@ class _TechnicianHomePageState extends State<TechnicianHomePage> {
 class ComplaintList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
+    return StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection('Complaints')
-          .where('completed', isEqualTo: false)
+          .where('completed', isEqualTo: false) // Filter by completed: false
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return CircularProgressIndicator();
         } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No pending complaints available.'));
+          return Center(child: Text('No complaints available.'));
         }
 
         var complaints = snapshot.data!.docs;
@@ -73,12 +65,24 @@ class ComplaintList extends StatelessWidget {
 
           var building = data['building'];
           var object = data['object'];
-          var complaintId = complaint.id;
+          var name = data['name'] ?? ''; // Check for null
+          var phoneNumber = data['phoneNumber'] ?? ''; // Check for null
+          var floor = data['floor'] ?? ''; // Check for null
+          var room = data['room'] ?? ''; // Check for null
+          var roomNo = data['roomNo'] ?? ''; // Check for null
+          var description = data['description'] ?? ''; // Check for null
+          var timestamp = data['timestamp'];
 
           var card = ComplaintCard(
-            complaintId: complaintId,
             building: building,
             object: object,
+            name: name,
+            phoneNumber: phoneNumber,
+            floor: floor,
+            room: room,
+            roomNo: roomNo,
+            description: description,
+            timestamp: timestamp,
           );
           complaintCards.add(card);
         }
@@ -94,12 +98,24 @@ class ComplaintList extends StatelessWidget {
 class ComplaintCard extends StatelessWidget {
   final String building;
   final String object;
-  final String complaintId;
+  final String name;
+  final String phoneNumber;
+  final String floor;
+  final String room;
+  final String roomNo;
+  final String description;
+  final Timestamp timestamp;
 
   ComplaintCard({
     required this.building,
     required this.object,
-    required this.complaintId,
+    required this.name,
+    required this.phoneNumber,
+    required this.floor,
+    required this.room,
+    required this.roomNo,
+    required this.description,
+    required this.timestamp,
   });
 
   @override
@@ -110,7 +126,7 @@ class ComplaintCard extends StatelessWidget {
         _showDetailsPopup(context);
       },
       child: Card(
-        margin: const EdgeInsets.all(10),
+        margin: EdgeInsets.all(10),
         child: ListTile(
           title: Text('Building: $building'),
           subtitle: Text('Object: $object'),
@@ -119,54 +135,37 @@ class ComplaintCard extends StatelessWidget {
     );
   }
 
-  void _showDetailsPopup(BuildContext context) async {
-    // Get complete details from Firestore based on complaintId
-    var complaintDetails =
-        await FirestoreService().getComplaintDetails(complaintId);
-
+  void _showDetailsPopup(BuildContext context) {
     // Implement the details popup screen here
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Complaint Details'),
+          title: Text('Complaint Details'),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Name: ${complaintDetails['name']}'),
-              Text('Phone Number: ${complaintDetails['phonenumber']}'),
-              Text('Building: ${complaintDetails['building']}'),
-              Text('Room: ${complaintDetails['room']}'),
-              Text('Room No: ${complaintDetails['roomno']}'),
-              Text('Floor: ${complaintDetails['floor']}'),
-              Text('Object: ${complaintDetails['object']}'),
-              Text('Description: ${complaintDetails['description']}'),
+              Text('Name: $name'),
+              Text('Phone Number: $phoneNumber'),
+              Text('Building: $building'),
+              Text('Floor: $floor'),
+              Text('Room: $room'),
+              Text('Room No: $roomNo'),
+              Text('Object: $object'),
+              Text('Description: $description'),
             ],
           ),
           actions: [
-            ElevatedButton(
-              onPressed: () {
-                // Handle marking the complaint as repaired
-                _markAsRepaired(complaintId);
-                Navigator.pop(context);
-              },
-              child: const Text('Repaired'),
-            ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              child: Text('OK'),
             ),
           ],
         );
       },
     );
-  }
-
-  void _markAsRepaired(String complaintId) {
-    // Call FirestoreService to update completed field to true
-    FirestoreService().updateCompletedStatus(complaintId, true);
   }
 }
