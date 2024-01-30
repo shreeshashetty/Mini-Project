@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:campus_care/Firestore/FirestoreService.dart'; // Import the FirestoreService class
-import 'package:campus_care/TechnicianApp/TechnicianCompletedPage.dart'; // Import the TechnicianCompletedPage
+import 'package:campus_care/Firestore/FirestoreService.dart';
+import 'package:campus_care/TechnicianApp/TechnicianCompletedPage.dart';
 
 class TechnicianHomePage extends StatefulWidget {
   @override
@@ -52,10 +52,12 @@ class _TechnicianHomePageState extends State<TechnicianHomePage> {
 }
 
 class ComplaintList extends StatelessWidget {
+  final firestoreInstance = FirebaseFirestore.instance;
+  static List<QueryDocumentSnapshot<Object?>> complaints = [];
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
+      stream: firestoreInstance
           .collection('Complaints')
           .where('completed', isEqualTo: false)
           .snapshots(),
@@ -66,7 +68,15 @@ class ComplaintList extends StatelessWidget {
           return const Center(child: Text('No pending complaints available.'));
         }
 
-        var complaints = snapshot.data!.docs;
+        complaints = snapshot.data!.docs;
+        complaints.sort((a, b) {
+          var roomPriorityA = a[
+              'roomPriority']; // Replace 'roomPriority' with the actual field name
+          var roomPriorityB = b['roomPriority'];
+
+          return roomPriorityA.compareTo(roomPriorityB);
+        });
+
         List<ComplaintCard> complaintCards = [];
         for (var complaint in complaints) {
           var data = complaint.data() as Map<String, dynamic>;
